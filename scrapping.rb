@@ -55,12 +55,12 @@ def get_element_of_hash_to_spreadsheet(dep)
 end
 # get_element_of_hash_to_spreadsheet("haute-corse")
 
-# méthode pour envoyer un email à ligne n du spreadsheet
+# méthode pour envoyer un email au paramètre address (et en utilisant les paramètres town et client_email)
 def send_email_to_line(address,town,client_email)
-email = client_email.compose do
-  to address
-  subject "Apprendre à coder avec THP"
-  html_part do
+email = client_email.compose do # on définit une variable email qui encapsule l'email à écrire 
+  to address # destinataire défini par paramètre address
+  subject "Apprendre à coder avec THP" # obet de l'email
+  html_part do # email en html (sinon juste body)
                content_type 'text/html; charset=UTF-8'
               body "<p>Bonjour,</p> 
                <p>Je m'appelle Bob, je suis élève à une <strong>formation de code gratuite, ouverte à tous, sans restriction géographique, ni restriction de niveau.</strong> La formation s'appelle The Hacking Project (http://thehackingproject.org). Nous apprenons l'informatique via la méthode du peer-learning : nous faisons des projets concrets qui nous sont assignés tous les jours, sur lesquel nous planchons en petites équipes autonomes. Le projet du jour est d'envoyer des emails à nos élus locaux pour qu'ils nous aident à faire de The Hacking Project un nouveau format d'éducation gratuite.</p>
@@ -70,10 +70,12 @@ email = client_email.compose do
             <p>Bob from THP</p>"
           end
 end
-email.deliver! # or: gmail.deliver(email)
-client_email.logout
+email.deliver! # méthode d'envoi de la variable email
+# or: gmail.deliver(email) 
+client_email.logout # méthode pour fermer la session
 end
 
+# méthode pour parcourir toutes les lignes du spreadsheet et ainsi envoyer l'email en boucle
 def go_through_all_the_lines
 # connexion à la session Google Drive
 session = GoogleDrive::Session.from_config("config.json")
@@ -86,10 +88,12 @@ gmail = Gmail.connect(username, password)
 # p gmail.inbox.count # display number of emails in inbox
 # p ws[n,2] # afficher la valeur contenue colonne B ligne n du spreadsheet google drive
 # p ws.num_rows # display number of rows of data
-	ws.rows.each do |row|
-		send_email_to_line(row[1],row[0],gmail) unless row[1]=="0"
+	ws.rows.each do |row| # on itère au sein d'un array d'arrays pour sortir chaque sous-array correspondant aux lignes du spreadsheet
+		send_email_to_line(row[1],row[0],gmail) unless row[1]=="0" # on applique la méthode d'envoi pour chaque email (élément 1 des sous-arrays) sauf si la valeur de l'email est égale à 0 (ce qui renverrait un message d'erreur)
 	end
 end
-go_through_all_the_lines
+
+# on éxécute la méthode
+go_through_all_the_lines 
 
 
